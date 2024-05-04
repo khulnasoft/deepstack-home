@@ -1,0 +1,34 @@
+{{/*  Upcoming events section on the Community page  */}}
+{{ with .Params.EventsSection}}
+    <section class="community-events" {{ if .anchor }} id="{{ .anchor }}" {{ end }}>
+        <div class="container container-padded">
+            <div class="inner">
+                <h2>{{ .title }}</h2>
+
+                <div class="events-container">
+                    {{ $currentDate := now.Format "2006-01-02" }}
+                    {{ range .events }}
+                        {{ $eventDate := dateFormat "2006-01-02" .date }}
+                        {{ if ge $eventDate $currentDate }}
+                            <div class="events-card {{ with .alt }}alt-card{{ end }}">
+                                    <img src="{{ .image }}" alt="{{ .title }}">
+
+                                    <div class="content-section">
+                                        <h3>{{ .title | markdownify }}</h3>
+                                        <div class="details">
+                                            <span class="date">{{ dateFormat "02" .date | humanize }} {{ dateFormat "Jan 2006" .date }}</span>
+                                            <span class="time">{{ .time }}</span>
+                                            <span class="location">{{ .location }}</span>
+                                        </div>
+        
+                                        <p>{{ .description | markdownify }}</p>
+                                        {{ partial "arrow-button" (dict "context" . "type" "link" "text" .buttonText "url" .url) }}
+                                    </div>
+                            </div>
+                        {{ end }}
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    </section>
+{{ end }}

@@ -1,0 +1,38 @@
+/**
+ * Codeblocks
+ */
+
+.highlight {
+  position: relative;
+  max-width: 100%;
+}
+code {
+  font-family: var(--font-monospaced);
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+}
+
+p > code, li > code {
+  padding: 0.25rem 0.5rem;
+  background-color: var(--color-bg-light-grey);
+  border-radius: var(--border-radius);
+}
+
+pre {
+  overflow: auto;
+  padding: 1rem;
+  background-color: var(--color-bg-light-grey) !important;
+
+  code {
+    font-size: var(--text-base);
+  }
+}
+
+// Fixes iOS font sizing anomaly - https://github.com/adityatelange/hugo-PaperMod/issues/828
+code {
+  text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}

@@ -1,0 +1,36 @@
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <title>
+    {{ if eq .Params.layout "integration" }}
+      {{ .Params.Name | plainify }} | {{ .Site.Title }}
+    {{ else }}
+      {{ .Title | plainify }} | {{ .Site.Title }}
+    {{ end }}
+  </title>
+
+  <meta name="description" content="{{ with .Params.description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}" />
+
+  {{/* Opengraph */}}
+  {{ partial "opengraph" . }}
+
+  {{/* Stylesheet */}}
+  {{ $style := resources.Get "/sass/main.scss" | resources.ToCSS | resources.PostCSS  (dict "config" "./postcss.config.js") |
+    resources.Minify | resources.Fingerprint
+  }}
+  <link rel="stylesheet" href="{{ $style.RelPermalink }}" />
+
+  {{/* Canonical url */}}
+  {{ if .Params.canonical_url }}
+    <link rel="canonical" href="{{ .Params.canonical_url }}" />
+  {{ end }}
+
+
+  <link href="https://www.googletagmanager.com" rel="preconnect" crossorigin />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+
+  {{/* Google Tag Manager */}}
+  {{ partial "gtag-head" . }}
+  {{ partial "datalayer" . }}
+</head>

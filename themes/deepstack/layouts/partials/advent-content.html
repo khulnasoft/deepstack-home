@@ -1,0 +1,75 @@
+<div class="advent-content image-bg">
+    <div class="container">
+        {{ $adventPages := sort (.GetPage "/advent-of-deepstack").Pages "Params.day" }}
+        {{ $totalDoors := 10 }}
+        {{ $openDoors := len $adventPages }}
+
+        {{ with .Params.discuss }}
+            <div class="discuss-link">
+                {{ partial "arrow-button" (dict "context" . "type" "link" "text" "Discuss" "url" . "color" "green" "icon"
+            "discuss")}}
+            </div>
+        {{ end }}
+
+        <div class="advent-grid">
+            {{ range (seq 1 $totalDoors) }}
+                {{ $currentDay := . }}
+                {{ $dayExists := false }}
+                
+                {{ range $adventPages }}
+                    {{ if eq .Params.day $currentDay }}
+                        {{ $dayExists = true }}
+                        <div class="door">
+                            <img src="/images/advent-door-open.png" alt="">
+                            <a href="{{ .RelPermalink }}#challenge" class="door-content">
+                                {{ .Params.door_text }}
+                            </a>
+                        </div>
+                        {{ break }}
+                    {{ end }}
+                {{ end }}
+                {{ if not $dayExists }}
+                    <div class="door">
+                        <img src="/images/advent-door.png" alt="">
+                        <div class="door-number">
+                            <span>{{ $currentDay }}</span>
+                            <p style="color:white;">
+                                <br /><br /><br />
+                                {{ if eq $currentDay 1 }}
+                                    December 4th
+                                {{ end }}
+                                {{ if eq $currentDay 2 }}
+                                    December 6th
+                                {{ end }}
+                                {{ if eq $currentDay 3 }}
+                                    December 8th
+                                {{ end }}
+                                {{ if eq $currentDay 4 }}
+                                    December 11th
+                                {{ end }}
+                                {{ if eq $currentDay 5 }}
+                                    December 13th
+                                {{ end }}
+                                {{ if eq $currentDay 6 }}
+                                    December 15th
+                                {{ end }}
+                                {{ if eq $currentDay 7 }}
+                                    December 18th
+                                {{ end }}
+                                {{ if eq $currentDay 8 }}
+                                    December 20th
+                                {{ end }}
+                                {{ if eq $currentDay 9 }}
+                                    December 22nd
+                                {{ end }}
+                                {{ if eq $currentDay 10 }}
+                                    December 24th
+                                {{ end }}
+                            </p>
+                        </div>
+                    </div>
+                {{ end }}
+            {{ end }}
+        </div>
+    </div>
+</div>

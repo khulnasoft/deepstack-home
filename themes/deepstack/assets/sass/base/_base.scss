@@ -1,0 +1,30 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-white);
+}
+
+// Container
+.container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  padding: 0 var(--container-padding);
+  margin: 0 auto;
+}
+
+// Extra padded container
+.container.container-padded {
+  padding: 0 var(--container-padding-lg);
+}
+
+// Inner content sections
+.inner {
+  padding: var(--inner-padding) 0;
+}
+
+// First inner under header
+.inner.inner-top {
+  padding-top: 3rem;
+}

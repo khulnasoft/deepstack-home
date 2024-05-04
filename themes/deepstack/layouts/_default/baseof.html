@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  {{ partial "head" . }}
+
+  <body>
+    {{/*  Google Tag Manager  */}}
+    {{ partial "gtag-body" . }}
+
+    {{/*  Header  */}}
+    {{ partial "header" . }}
+
+    <!-- {{/* Announcement Bar */}}
+     {{ if not (or (eq .Params.Layout "advent") (eq .Params.Layout "advent-challenge")) }}
+      {{ partial "announcement" . }}
+    {{ end}} -->
+
+    {{/*  Main  */}}
+    <main>{{ block "main" . }}{{ end }}</main>
+
+    {{/*  Footer  */}}
+    {{ partial "footer" . }}
+  </body>
+</html>

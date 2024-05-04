@@ -1,0 +1,150 @@
+baseURL = 'https://deepstack.khulnasoft.com/'
+languageCode = 'en-us'
+title = 'Deepstack'
+theme = "deepstack"
+
+
+paginate = 10
+paginatePath = "/"
+
+[taxonomies]
+  author = "authors"
+  tag = "tags"
+
+[sitemap]
+  changefreq = 'monthly'
+  filename = 'sitemap.xml'
+  priority = 1
+
+# Defaults used for opengraph metadata if none are specified for the page
+[params]
+  title = "Deepstack"
+  description = "Deepstack is an open-source framework for building search systems that work intelligently over large document collections."
+  images = ["/images/deepstack-ogimage.png"]
+
+[permalinks]
+  pages = "/:filename"
+  authors = "/blog/authors/:slug"
+  tags = "/blog/tags/:slug"
+
+[security]
+  [security.funcs]
+    getenv = ["^HUGO_", "ORBIT_API_KEY", "GITHUB_ACCESS_TOKEN", "GOOGLE_TAG_ANALYTICS", "DC_API_KEY", "DC_WORKSPACE_NAME", "DC_PIPELINE_NAME"]
+
+[markup]
+  # Code blocks
+  [markup.highlight]
+    anchorLineNos = false
+    codeFences = true
+    guessSyntax = false
+    hl_Lines = ''
+    hl_inline = false
+    lineAnchors = ''
+    lineNoStart = 1
+    lineNos = false
+    lineNumbersInTable = true
+    noClasses = true
+    noHl = false
+    style = 'solarized-light'
+    tabWidth = 4
+
+  # Toc link levels (h2)
+  [markup.tableOfContents]
+    endLevel = 2
+    startLevel = 2
+
+  # Allow html in markdown
+  [markup.goldmark.renderer]
+    unsafe= true
+
+# Main navigation
+[menu]
+[[menu.main]]
+  identifier = 'overview'
+  name = 'Overview'
+  url = '/'
+  weight = 1
+  
+[[menu.main]]
+  identifier = 'documentation'
+  name = 'Documentation'
+  url = 'https://docs.deepstack.khulnasoft.com/docs'
+  weight = 2
+  params = { tag = "2.0" }
+
+
+[[menu.main]]
+  identifier = 'learn'
+  name = 'Learn'
+  url = '/'
+  weight = 3
+  params = { tag = "2.0" }
+
+[[menu.main]]
+  identifier = 'integrations'
+  name = 'Integrations'
+  url = '/integrations'
+  weight = 4
+
+[[menu.main]]
+  identifier = 'blog'
+  name = 'Blog'
+  url = '/blog'
+  weight = 5
+
+[[menu.main]]
+  identifier = 'community'
+  name = 'Community'
+  url = '/community'
+  weight = 6
+
+[[menu.main]]
+  identifier = 'resources'
+  name = 'Resources'
+  url = '/'
+  weight = 7
+
+# Overview children
+[[menu.main]]
+  name = 'What is Deepstack?'
+  url = '/overview/intro'
+  parent = 'overview'
+  weight = 1
+
+[[menu.main]]
+  name = 'Get Started'
+  url = '/overview/quick-start'
+  parent = 'overview'
+  weight = 2
+
+[[menu.main]]
+  name = '📚 Tutorials'
+  url = '/tutorials'
+  parent = 'learn'
+  weight = 1
+
+[[menu.main]]
+  name = '🧑‍🍳 Cookbooks'
+  url = 'https://github.com/khulnasoft/deepstack-cookbook'
+  parent = 'learn'
+  weight = 2
+
+# Resources children
+[[menu.main]]
+  name = 'Release Notes'
+  url = '/release-notes'
+  parent = 'resources'
+  weight = 1
+
+[[menu.main]]
+  name = 'khulnasoft Blog'
+  url = 'https://www.khulnasoft.com/blog'
+  parent = 'resources'
+  weight = 2
+
+[[menu.main]]
+  name = 'NLP Resources'
+  url = '/nlp-resources'
+  parent = 'resources'
+  weight = 4
+

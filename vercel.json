@@ -1,0 +1,134 @@
+{
+  "headers": [
+    {
+      "source": "/fonts/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers" : [
+        {
+          "key" : "X-Content-Type-Options",
+          "value" : "nosniff"
+        },
+        {
+          "key" : "X-Frame-Options",
+          "value" : "DENY"
+        }
+      ]
+    }
+  ],
+
+  "functions": {
+    "api/tutorial-search.js": {
+      "memory":3008
+    }
+  },
+
+  "trailingSlash": false,
+
+  "redirects": [
+    {
+      "source": "/docs/:name",
+      "destination": "https://docs.deepstack.khulnasoft.com/docs/:name",
+      "permanent": true
+    },
+    {
+      "source": "/docs/latest/:name",
+      "destination": "https://docs.deepstack.khulnasoft.com/docs/:name",
+      "permanent": true
+    },
+    {
+      "source": "/docs/v:version/:name",
+      "destination": "https://docs.deepstack.khulnasoft.com/v:version/docs/:name",
+      "permanent": true
+    },
+    {
+      "source": "/overview/v:version/:name(intro|get-started|quick-demo|nlp-resources|roadmap|use-cases)",
+      "destination": "/overview/:name",
+      "permanent": true
+    },
+    {
+      "source": "/overview/v:version/:name(installation|telemetry|faq|migration|glossary)",
+      "destination": "https://docs.deepstack.khulnasoft.com/v:version/docs/:name",
+      "permanent": true
+    },
+    {
+      "source": "/overview/:name(installation|telemetry|faq|migration|glossary)",
+      "destination": "https://docs.deepstack.khulnasoft.com/docs/:name",
+      "permanent": true
+    },
+    {
+      "source": "/reference/:api",
+      "destination": "https://docs.deepstack.khulnasoft.com/reference/:api-api",
+      "permanent": true
+    },
+    {
+      "source": "/reference/v:version/:api",
+      "destination": "https://docs.deepstack.khulnasoft.com/v:version/reference/:api-api",
+      "permanent": true
+    },
+    {
+      "source": "/(pipeline_nodes|components|guides|usage)/v:version/:seg1-:seg2-:seg3",
+      "destination": "https://docs.deepstack.khulnasoft.com/v:version/docs/:seg1*_:seg2*_:seg3",
+      "permanent": true
+    },
+    {
+      "source": "/(pipeline_nodes|components|guides|usage)/v:version/:seg1-:seg2",
+      "destination": "https://docs.deepstack.khulnasoft.com/v:version/docs/:seg1*_:seg2",
+      "permanent": true
+    },
+    {
+      "source": "/(pipeline_nodes|components|guides|usage)/v:version/:seg1",
+      "destination": "https://docs.deepstack.khulnasoft.com/v:version/docs/:seg1",
+      "permanent": true
+    },
+    {
+      "source": "/(pipeline_nodes|components|guides|usage)/:seg1-:seg2-:seg3",
+      "destination": "https://docs.deepstack.khulnasoft.com/docs/:seg1*_:seg2*_:seg3",
+      "permanent": true
+    },
+    {
+      "source": "/(pipeline_nodes|components|guides|usage)/:seg1-:seg2",
+      "destination": "https://docs.deepstack.khulnasoft.com/docs/:seg1*_:seg2",
+      "permanent": true
+    },
+    {
+      "source": "/(pipeline_nodes|components|guides|usage)/:seg1",
+      "destination": "https://docs.deepstack.khulnasoft.com/docs/:seg1",
+      "permanent": true
+    },
+    {
+      "source": "/pipeline_nodes/overview",
+      "destination": "https://docs.deepstack.khulnasoft.com/docs/nodes_overview",
+      "permanent": true
+    },
+    {
+      "source": "/pipeline_nodes/v:version/overview",
+      "destination": "https://docs.deepstack.khulnasoft.com/v:version/docs/nodes_overview",
+      "permanent": true
+    },
+    {
+      "source": "/benchmarks/latest",
+      "destination": "/benchmarks",
+      "permanent": true
+    },
+    {
+      "source": "/tutorials/v:version/:name",
+      "destination": "/tutorials/:name",
+      "permanent": true
+    },
+    {
+      "source": "/blog/authors",
+      "destination": "/blog",
+      "permanent": true
+    }
+  ],
+
+  "buildCommand": "./build.sh"
+}

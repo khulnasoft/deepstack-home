@@ -1,0 +1,55 @@
+{{/*  Integration page sidebar  */}}
+<aside class="toc-sidebar">
+  <div class="accordions">
+    <span class="sidebar-title">Integrations</span>
+    {{ $currentPage := . }}
+    {{ $integrations := where (.GetPage "/integrations").Pages "Params.hidden" "!=" true }}
+
+    {{/*  Get all the integration types  */}}
+    {{ $types := slice }}
+    {{ range $integrations }}
+      {{ if .Params.type }}
+        {{ if not (in $types .Params.type) }}
+          {{ $types = $types | append .Params.type }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+
+    {{/*  Accordions  */}}
+    {{ range $types }}
+      <details
+        class="accordion-js"
+        {{ if eq $currentPage.Params.type . }}open{{ end }}
+      >
+        <summary class="accordion-title">
+          <div class="accordion-title-child">{{ . }}</div>
+        </summary>
+
+        <ul class="content" role="list">
+          {{ range where $integrations ".Params.type" . }}
+            <li>
+              {{ if (eq $currentPage.RelPermalink .RelPermalink) }}
+              <details class="accordion-js accordion-child" open>
+                <summary class="accordion-title">{{ .Params.name }}</summary>
+                {{if .Params.toc}}
+                  <div class="content">
+                    {{/* Page TOC */}}
+                    {{ .TableOfContents }}
+                  </div>
+                {{ end }}
+              </details>
+              {{ else }}
+                <a
+                  class="tutorial-card category-{{ lower .Params.category }}"
+                  href="{{ .RelPermalink }}"
+                >
+                  {{ .Params.name }}
+                </a>
+              {{ end }}
+            </li>
+          {{ end }}
+        </ul>
+      </details>
+    {{ end }}
+  </div>
+</aside>

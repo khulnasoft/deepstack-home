@@ -1,0 +1,223 @@
+/**
+ * Shared nav styles
+ */
+.nav {
+  // Links
+  li > a {
+    text-decoration: none;
+    color: var(--color-dark-grey);
+    font-weight: var(--font-weight-links);
+
+    &:hover {
+      color: var(--color-dark-blue);
+    }
+  }
+
+  // Current page link
+  li.active > a,
+  a.active {
+    color: var(--color-yellow) !important;
+  }
+
+  ul {
+    padding: 0;
+    margin: 0;
+  }
+
+  .menu-item-tag {
+    position: absolute;
+    top: -0.75rem;
+    right: -0.75rem;
+    font-size: 0.75rem;
+    padding: 0.125rem 0.25rem;
+    line-height: 1;
+    background-color: var(--color-yellow);
+    color: var(--color-dark-blue);
+    border-radius: 0.125rem;
+  }
+}
+
+/**
+ * Mobile nav
+ */
+.mobile-nav {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 2rem;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--color-bg-white);
+  box-shadow: var(--box-shadow);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--transition-fast) var(--ease);
+  z-index: 10;
+
+  > ul {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  li > a {
+    position: relative;
+  }
+
+  ul.sub-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  @include lg {
+    display: none;
+  }
+
+  .menu-label {
+    font-weight: var(--font-weight-heading);
+    color: var(--color-dark-grey);
+    font-size: var(--text-label);
+    text-transform: uppercase;
+    letter-spacing: 0.06rem;
+  }
+}
+
+.mobile-nav.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/**
+ * Desktop nav
+ */
+.desktop-nav {
+  display: none;
+
+  @include lg {
+    display: block;
+  }
+
+  li, li .button-wrapper {
+    position: relative;
+  }
+
+  //Main menu list
+  > ul {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 2rem;
+
+    // Dropdown menu parent
+    li.dropdown-menu {
+      display: flex;
+
+      &:hover {
+        > a:not(.active) {
+          color: var(--color-dark-blue);
+        }
+      }
+
+      // Hover buffer
+      &::after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        align-self: center;
+        min-height: 3.5rem;
+      }
+
+      // Dropdown menu
+      ul.sub-menu {
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        padding: 2rem;
+        border-radius: var(--border-radius-sm);
+        width: auto;
+        white-space: nowrap;
+        background-color: var(--color-bg-white);
+        box-shadow: var(--box-shadow);
+        opacity: 0;
+        transition: opacity var(--transition-fast) var(--ease);
+        pointer-events: none;
+        z-index: 10;
+        visibility: hidden;
+
+        > li:not(.active) a {
+          color: var(--color-dark-blue);
+        }
+
+        li.active {
+          .button-wrapper {
+            transform: none !important;
+          }
+          svg {
+            visibility: hidden;
+          }
+        }
+      }
+
+      // Show dropdown menu on hover
+      &:hover {
+        ul.sub-menu {
+          opacity: 1;
+          pointer-events: auto;
+          visibility: visible;
+        }
+      }
+    }
+
+    // Prevent last dropdown menu from going out of page container
+    @media (max-width: 1350px) {
+      li.dropdown-menu:last-of-type {
+        ul.sub-menu {
+          left: unset;
+          transform: unset;
+          right: 0%;
+        }
+      }
+    }
+  }
+}
+
+// Dark
+.header-dark .desktop-nav {
+  li > a:not(.active) {
+    color: var(--color-light-grey);
+
+    &:hover {
+      color: var(--color-white);
+    }
+  }
+
+  li.active > a,
+  a.active {
+    color: var(--color-yellow);
+  }
+
+  .btn.arrow-button {
+    background-color: rgba($color: #{var(--color-green-rgb)}, $alpha: 1);
+
+    &:hover {
+      background-color: rgba($color: #{var(--color-green-rgb)}, $alpha: 0.9);
+    }
+  }
+
+  li.dropdown-menu {
+    &:hover {
+      > a:not(.active) {
+        color: var(--color-white);
+      }
+    }
+  }
+}

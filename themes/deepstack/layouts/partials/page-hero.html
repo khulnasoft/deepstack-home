@@ -1,0 +1,19 @@
+{{/* Hero used in the Tutorials, Blog, and Author pages */}}
+<div class="page-hero">
+  <div class="container container-padded">
+    <section class="hero-heading">
+      {{ if or (eq .Type "authors") (eq .Type "tags") }}
+        <h1>Deepstack Blog</h1>
+        <p>Articles about Deepstack, NLP, LLMs and open source tools.</p>
+      {{ else }}
+        {{/* Regular page hero */}}
+        <h1>{{ .Params.title }}</h1>
+        <p>{{ .Params.subtitle | markdownify }}</p>
+      {{ end }}
+    </section>
+
+    {{ if or (eq .Type "integrations") (eq .Type "tutorials") }}
+        {{ partial "contribute-button" . }}
+    {{ end }}
+  </div>
+</div>

@@ -1,0 +1,65 @@
+{{/*  Mobile navigation  */}}
+<nav class="nav mobile-nav">
+  <button class="nav-toggle nav-toggle-close" aria-label="Close menu">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 14 14"
+      role="img"
+      aria-label="Cross icon"
+      focusable="false"
+    >
+      <path
+        d="M1 1l12 12m0-12L1 13"
+        stroke="#000"
+        stroke-linecap="round"
+        stroke-width="2"
+      ></path>
+    </svg>
+  </button>
+  <ul role="list">
+    {{ $currentPage := . }}
+    {{ range .Site.Menus.main }}
+    {{/*  If nav item has children, list the children  */}}
+      {{ if .HasChildren }}
+        <li>
+          <span class="menu-label">
+            {{ .Name }}
+          </span>
+          <ul class="sub-menu" role="list">
+            {{ range .Children }}
+              <li
+                class="{{ if (in $currentPage.RelPermalink .URL) }}
+                  active
+                {{ end }}"
+              >
+              
+                <a href="{{ .URL }}" {{ if strings.HasPrefix .URL "http" }} target="_blank" rel="noopener"{{ end }}>
+                  {{ with .Params.tag }}
+                    <span span class="menu-item-tag">{{ . }}</span>
+                  {{ end }}
+
+                  {{ .Name }}
+                </a>
+              </li>
+            {{ end }}
+          </ul>
+        </li>
+      {{ else }}
+      {{/*  If no children, add a link  */}}
+        <li>
+          <a href="{{ .URL }}" class="{{ if (in $currentPage.RelPermalink .URL) }}active{{ end }}" {{ if strings.HasPrefix .URL "http" }} target="_blank" rel="noopener"{{ end }}>
+            {{ with .Params.tag }}
+              <span class="menu-item-tag">{{ . }}</span>
+            {{ end }}
+            
+            {{ .Name }}
+          </a>
+        </li>
+      {{ end }}
+    {{ end }}
+
+    {{/*  Get started button  */}}
+    {{ partial "arrow-button" (dict "context" . "type" "link" "text" "Get Started" "url" "/overview/quick-start" "color" "grey") }}
+
+  </ul>
+</nav>

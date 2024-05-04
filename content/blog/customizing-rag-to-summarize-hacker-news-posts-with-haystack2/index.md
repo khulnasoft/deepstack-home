@@ -1,0 +1,213 @@
+---
+layout: blog-post
+title: Customizing RAG Pipelines to Summarize Latest Hacker News Posts with Deepstack 2.0 Preview
+description: Take a look at how we are changing Deepstack for advanced LLM pipelines, with an example that uses a custom component to fetch the latest Hacker News posts
+featured_image: thumbnail.png
+images: ["blog/customizing-rag-to-summarize-hacker-news-posts-with-deepstack2/thumbnail.png"]
+featured_image_caption: Customizing RAG Pipelines to Summarize Latest Hacker News Posts with Deepstack 2.0
+toc: True
+date: 2023-09-22
+last_updated:  2023-12-05
+authors:
+  - Tuana Celik
+tags: ["RAG", "Deepstack 2.0", "LLM"]
+cookbook: hackernews-custom-component-rag.ipynb
+---	
+
+Over the last few months, the team at [khulnasoft](https://khulnasoft.com) has been working on a major upgrade in the Deepstack repository. Along the way, we’ve been sharing our updates and design process for the upcoming [Deepstack 2.0](https://github.com/khulnasoft/deepstack/discussions/5568) with the community, as well as releasing new components in a preview package. This means that you can already start exploring features coming to Deepstack 2.0 using the preview components available in the `deepstack-ai` package (`pip install deepstack-ai`).
+> Update: we released Deepstack 2.0-Beta on December 4th 2023, the code in this article has been updated to work with this new release.
+
+
+In this article, I’ll cover two major concepts in Deepstack 2.0.
+
+-   **Components:** These are the smallest building blocks in Deepstack. They are meant to cover one simple task. As well as using components available in the core Deepstack project, it will be easier than ever in 2.0, to create your own custom components.
+-   **Pipelines:** These are made by connecting components to each other. Pipelines in 2.0 are more flexible than ever and enable you various new connection patterns between your components.
+
+While components and pipelines have been at the core of Deepstack since the beginning, Deepstack 2.0 introduces some significant changes to how they are constructed.
+
+We’ll look at how to create custom components and pipelines using the Deepstack 2.0 preview. I’ll share a custom Deepstack component that fetches the latest posts from Hacker News, and show how we can use it in a retrieval-augmented generative (RAG) pipeline to generate summaries of Hacker News posts.
+
+## Components in Deepstack 2.0
+
+A component is a class that does _one thing._ That thing could be to ‘prompt GPT3.5’, or ‘translate’, or ‘retrieve documents’, and so on.
+
+While Deepstack comes with a set of components in the core project, we hope that with Deepstack 2.0 you will also be able to easily build components to your own custom requirements.
+
+In Deepstack 2.0, a class can become a component with just two additions:
+
+-   A `@component` decorator on the class declaration.
+-   A `run` function with a decorator `@component.output_types(my_output_name=my_output_type)` that describes what output the pipeline should expect from this component.
+
+And that’s about it.
+
+### Building a Custom Hacker News Component
+
+I’ll admit, the idea for this custom component came from one of our amazing Deepstack ambassadors on Discord during a live coding session (thanks rec 💙) — and it turned out pretty well! So let’s take a look at how we create a custom component that fetches the latest _k_ posts from Hacker News.
+
+First, we create a `HackernewsNewestFetcher`. For it to be a valid Deepstack component, it will also need a `run` function. For now, let’s create a stub function that simply returns a dictionary containing a single key `‘articles’` with the value ‘Hello world!’.
+
+```python
+from deepstack import component  
+  
+@component  
+class HackernewsNewestFetcher():  
+    
+  @component.output_types(articles=str)  
+  def run(self):  
+    return {'articles': 'Hello world!'}
+```
+Now let’s make our component actually fetch the latest posts from Hacker News. We can use the [`newspapers3k`](https://newspaper.readthedocs.io/en/latest/) package to crawl and get the contents of given URLs. We will also change the output type to return a list of Document objects.
+
+```python
+from typing import List  
+from deepstack import component, Document  
+from newspaper import Article  
+import requests  
+  
+@component  
+class HackernewsNewestFetcher():  
+    
+  @component.output_types(articles=List[Document])  
+  def run(self, last_k: int):  
+    newest_list = requests.get(url='https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty')  
+    articles = []  
+    for id in newest_list.json()[0:last_k]:  
+      article = requests.get(url=f"https://hacker-news.firebaseio.com/v0/item/{id}.json?print=pretty")  
+      if 'url' in article.json():  
+        articles.append(article.json()['url'])  
+  
+    docs = []  
+    for url in articles:  
+      try:  
+        article = Article(url)  
+        article.download()  
+        article.parse()  
+        docs.append(Document(content=article.text, meta={'title': article.title, 'url': url}))  
+      except:  
+        print(f"Couldn't download {url}, skipped")  
+    return {'articles': docs}
+```
+We now have a component that, when run, returns a list of Documents containing the contents of the (`last_k`) latest posts on Hacker News. Here we store the output in the `articles` key of the dictionary.
+
+## Pipelines in Deepstack 2.0
+
+A pipeline is a structure that connects one component’s output to another component’s input until a final result is reached.
+
+A pipeline is created with a few steps:
+
+1.  Create a Pipeline:  
+    `pipeline = Pipeline()`
+2.  Add components to the pipeline:  
+    `pipeline.add_component(instance=component_a, name=”ComponentA”)`  
+    `pipeline.add_component(instance=component_b, name=”ComponentB”)`
+3.  Connect an output from one component to the input of another:  
+    `pipeline.connect("component_a.output_a", "component_b.input_b")`
+
+There are already enough components available in the Deepstack 2.0 preview for us to build a simple RAG pipeline that uses our new`HackernewsNewestFetcher` for the retrieval augmentation step.
+
+### Building a RAG Pipeline to Generate Summaries of Hacker News Posts
+
+To build a RAG pipeline that can create a summary for each of the latest _k_ posts on Hacker News, we will use two components from the Deepstack 2.0 preview:
+
+-   The `PromptBuilder`: This component allows us to create prompt templates using [Jinja](https://jinja.palletsprojects.com/en/3.1.x/) as our templating language.
+-   The `OpenAIGenerator`: This component simply prompts the specified GPT model. We can connect the `PromptBuilder` output to this component to customize how we interact with our chosen model.
+
+First, we initialize all of the components we will need for the pipeline:
+
+```python
+from deepstack import Pipeline  
+from deepstack.components.builders.prompt_builder import PromptBuilder  
+from deepstack.components.generators import OpenAIGenerator
+from deepstack.utils import Secret
+
+prompt_template = """  
+You will be provided a few of the latest posts in HackerNews, followed by their URL.  
+For each post, provide a brief summary followed by the URL the full post can be found at.  
+  
+Posts:  
+{% for article in articles %}  
+  {{article.content}}  
+  URL: {{article.meta['url']}}  
+{% endfor %}  
+"""  
+  
+prompt_builder = PromptBuilder(template=prompt_template)  
+llm = OpenAIGenerator(mode="gpt-4", api_key=Secret.from_token('YOUR_API_KEY'))  
+fetcher = HackernewsNewestFetcher()
+```
+Next, we add the components to a Pipeline:
+
+```python
+pipeline = Pipeline()  
+pipeline.add_component("hackernews_fetcher", fetcher)  
+pipeline.add_component("prompt_builder", prompt_builder)  
+pipeline.add_component("llm", llm)
+```
+And finally, we connect the components to each other:
+```python
+pipeline.connect("hackernews_fetcher.articles", "prompt_builder.articles")  
+pipeline.connect("prompt_builder", "llm")
+```
+Here, notice how we connect `hackernews_fetcher.articles` to `prompt_builder.articles`. This is because `prompt_builder` is expecting `articles` in its template:
+
+```
+Posts:  
+{% for article in articles %}  
+  {{article.contnet}}  
+  URL: {{article.meta['url']}}  
+{% endfor %}
+```
+The output and input keys do not need to have matching names. Additionally, `prompt_builder` makes _all_ of the input keys available to your prompt template. We could, for example, provide a `documents` input to `prompt_builder` instead of `articles`. Then our code might look like this:
+
+```python
+prompt_template = """  
+You will be provided a few of the latest posts in HackerNews, followed by their URL.  
+For each post, provide a brief summary followed by the URL the full post can be found at.  
+  
+Posts:  
+{% for document in documents %}  
+  {{document.content}}  
+  URL: {{document.meta['url']}}  
+{% endfor %}  
+"""  
+  
+[...]  
+  
+pipeline.connect("hackernews_fetcher.articles", "prompt_builder.documents")
+```
+Notice how the prompt now refers to `documents`, and the `connect` call now attaches to the corresponding `prompt_builder.documents` input.
+
+Now that we have a pipeline, we can run it. Here is what I got as a response at about 22:45 CET on September 21st 🤗
+
+```python
+result = pipe.run(data={"hackernews_fetcher":{"last_k": 2}})  
+print(result['llm']['replies'][0])
+```
+Response:
+```
+1. "The translation world has legends of its own, but not all legends involve greatness.   
+Many provide pain, confusion, or comedy, as these examples of bad game translation prove."   
+- This post shares a humorous look at some examples of poor video game translations that have   
+resulted in confusion and comedy. The author seeks to highlight that while translation is often   
+necessary in game localization, it can sometimes yield suboptimal results.  
+Link: https://legendsoflocalization.com/bad-translation/  
+  
+2. “Recently, I found myself returning to a compelling series of   
+blog posts titled Zero-cost futures in Rust by Aaron Turon about what would   
+become the foundation of Rust's async ecosystem.”   
+- This post provides an in-depth analysis of the current state of Rust's   
+'async' ecosystem, drawing upon the author's own experiences and Aaron Turon's   
+blog series, "Zero-cost futures in Rust". The author also discusses the benefits and   
+negatives of the current async ecosystem, the problems with ecosystem fragmentation,   
+the state and issue of async-std, alternative runtimes, the complexities of writing async code,   
+the benefits of synchronous threads over async, and the obsessiveness of Rust landscape with an   
+async-first approach. The post concludes with the notion that async Rust should be used only   
+when necessary and that the smaller, simpler language inside Rust (the synchronous Rust)   
+should be the default mode.  
+Link: https://corrode.dev/blog/async/
+```
+## Further Improvements
+
+This custom component was created as an experiment and you could certainly take it much further in a real-world application.
+
+For example, our experimental component does nothing to reduce the length of the content in each article. This means that GPT-4 may struggle to give a good response, especially when setting _last_k_ to a high number.

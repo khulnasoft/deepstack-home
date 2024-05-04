@@ -1,0 +1,23 @@
+.site-header {
+  position: relative;
+  padding: var(--header-padding) 0;
+
+  .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .site-title > svg {
+      display: block;
+      height: 2.5rem;
+
+      @include md {
+        height: 3rem;
+      }
+    }
+  }
+}
+
+.site-header.header-dark {
+  background-color: var(--color-bg-dark-blue);
+}
